@@ -122,8 +122,10 @@ export const jobSearch = async (req, res) => {
 
 export const getYourPostedJob = async (req, res) => {
   try {
+    const userId = req.user?._id || req.user?.id;
+    console.log("User ID:", userId);
     const jobs = await Job.find({
-      postedBy: req.user?._id,
+      postedBy: userId,
     }).populate("postedBy", "name email");
 
     if (!jobs.length) {

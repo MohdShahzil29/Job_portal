@@ -18,17 +18,22 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use(fileUpload({ useTempFiles: true }));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  })
+);
 // app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // routes import
 
-app.use("/auth", userRoutes);
-app.use("/job", jobRoutes);
+app.use("/", userRoutes);
+app.use("/", jobRoutes);
 app.use("/", applicationRoutes);
 
 export default app;

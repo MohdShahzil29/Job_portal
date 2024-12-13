@@ -70,6 +70,7 @@ export const register = async (req, res) => {
         email: user.email,
         company: user.company,
         position: user.position,
+        role: user.role,
         phone: user.phone,
       },
     });
@@ -116,11 +117,13 @@ export const login = async (req, res) => {
       message: "Login successful",
       token,
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
         company: user.company,
         position: user.position,
         phone: user.phone,
+        role: user.role,
       },
     });
   } catch (error) {

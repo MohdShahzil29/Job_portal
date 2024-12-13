@@ -6,7 +6,7 @@ const app = express.Router();
 
 app.post("/job-application", authenticateUser, createJobApplication);
 app.get('/search-job', jobSearch);
-app.get('/your-job', getYourPostedJob)
+app.get('/your-job', authenticateUser, getYourPostedJob)
 app.get('/get-all-job', getAllJob)
 
 export default app;

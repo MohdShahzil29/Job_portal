@@ -1,67 +1,58 @@
 import Profile from "../models/profile.model.js";
+import cloudinary from '../config/cloudinary.js'
 
 export const userProfile = async (req, res) => {
   try {
-    const { bio, phoneNumber, address, socialMedia, skills, education } =
-      req.body;
-    const userId = req.user?._id;
-
-    // Check if profile already exists
-    let profile = await Profile.findOne({ user: userId });
-
-    if (profile) {
-      return res.status(400).json({
-        success: false,
-        message: "Profile already exists for this user",
-      });
+    const { bio, phoneNumber, address, socialMedia, skills, education } = req.body;
+    
+    // Validate skills and education are arrays of objects
+    if (skills && !Array.isArray(skills)) {
+      return res.status(400).json({ message: "Skills should be an array." });
+    }
+    if (education && !Array.isArray(education)) {
+      return res.status(400).json({ message: "Education should be an array." });
     }
 
+    // Check if profile exists
+    let profile = await Profile.findOne({ user: req.user._id });
+    if (profile) {
+      return res.status(400).json({ message: "Profile already exists." });
+    }
+
+    // Handle profile creation
     let avatar = "";
     if (req.files && req.files.avatar) {
       const result = await cloudinary.uploader.upload(
-        req.files.companyLogo.tempFilePath,
-        {
-          folder: "user_avatar",
-        }
+        req.files.avatar.tempFilePath,
+        { folder: "user_avatar" }
       );
       avatar = result.secure_url;
     }
 
-    // Create new profile
     profile = await Profile.create({
-      user: userId,
+      user: req.user._id,
       bio,
       avatar,
       phoneNumber,
-      address: {
-        street: address?.street || "",
-        city: address?.city || "",
-        state: address?.state || "",
-        country: address?.country || "",
-      },
-      socialMedia: {
-        facebook: socialMedia?.facebook || "",
-        twitter: socialMedia?.twitter || "",
-        instagram: socialMedia?.instagram || "",
-        linkedin: socialMedia?.linkedin || "",
-      },
+      address,
+      socialMedia,
       skills: skills || [],
       education: education || [],
     });
 
     res.status(201).json({
       success: true,
-      message: "Profile created successfully",
       profile,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
-      success: false,
       message: "Error creating profile",
       error: error.message,
     });
   }
 };
+
 
 export const getUserPorfile = async (req, res) => {
   try {

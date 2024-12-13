@@ -58,18 +58,11 @@ const profileSchema = new mongoose.Schema(
 
     skills: [
       {
-        name: {
-          type: String,
-          required: true,
-        },
+        name: { type: String, required: true },
         level: {
           type: String,
           enum: ["Beginner", "Intermediate", "Advanced", "Expert"],
           default: "Beginner",
-        },
-        yearsOfExperience: {
-          type: Number,
-          default: 0,
         },
       },
     ],

@@ -1,16 +1,53 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     Name: "",
     email: "",
     password: "",
+    role: "",
+    company: "",
+    position: "",
+    phone: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
+    setError("");
+
+    try {
+      const endpoint =
+        formData.role === "user"
+          ? `${import.meta.env.VITE_BASE_URL}/user/register`
+          : `${import.meta.env.VITE_BASE_URL}/recruter/register`;
+
+      const response = await axios.post(endpoint, {
+        name: formData.Name,
+        email: formData.email,
+        password: formData.password,
+        ...(formData.role === "recruiter" && {
+          company: formData.company,
+          position: formData.position,
+          phone: formData.phone,
+        }),
+      });
+
+      if (response.data.success) {
+        toast.success("Registration successful! You can now log in.");
+        navigate("/login");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "An error occurred during registration"
+      );
+      toast.error(err.response?.data?.message || "An error occurred");
+      console.error("Registration error:", err);
+    }
   };
 
   const handleChange = (e) => {
@@ -39,6 +76,10 @@ const Register = () => {
 
       <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 text-red-500 text-sm text-center">{error}</div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -51,6 +92,7 @@ const Register = () => {
                     name="role"
                     type="radio"
                     value="user"
+                    checked={formData.role === "user"}
                     onChange={handleChange}
                     className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                   />
@@ -140,6 +182,71 @@ const Register = () => {
                 />
               </div>
             </div>
+
+            {formData.role === "recruiter" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="company"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Company Name
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="company"
+                      name="company"
+                      type="text"
+                      required
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={formData.company}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="position"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Position
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="position"
+                      name="position"
+                      type="text"
+                      required
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={formData.position}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Phone Number
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div>
               <button
                 type="submit"
