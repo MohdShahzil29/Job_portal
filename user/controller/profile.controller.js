@@ -1,15 +1,20 @@
 import Profile from "../models/profile.model.js";
-import cloudinary from '../config/cloudinary.js'
+import cloudinary from "../config/cloudinary.js";
 
 export const userProfile = async (req, res) => {
   try {
-    const { bio, phoneNumber, address, socialMedia, skills, education } = req.body;
-    
-    // Validate skills and education are arrays of objects
-    if (skills && !Array.isArray(skills)) {
+    const { bio, phoneNumber, address, socialMedia, skills, education } =
+      req.body;
+
+    // Parse JSON strings into arrays if necessary
+    const parsedSkills = skills ? JSON.parse(skills) : [];
+    const parsedEducation = education ? JSON.parse(education) : [];
+
+    // Validate parsed skills and education are arrays of objects
+    if (!Array.isArray(parsedSkills)) {
       return res.status(400).json({ message: "Skills should be an array." });
     }
-    if (education && !Array.isArray(education)) {
+    if (!Array.isArray(parsedEducation)) {
       return res.status(400).json({ message: "Education should be an array." });
     }
 
@@ -34,10 +39,10 @@ export const userProfile = async (req, res) => {
       bio,
       avatar,
       phoneNumber,
-      address,
-      socialMedia,
-      skills: skills || [],
-      education: education || [],
+      address: JSON.parse(address),
+      socialMedia: JSON.parse(socialMedia),
+      skills: parsedSkills,
+      education: parsedEducation,
     });
 
     res.status(201).json({
@@ -52,7 +57,6 @@ export const userProfile = async (req, res) => {
     });
   }
 };
-
 
 export const getUserPorfile = async (req, res) => {
   try {

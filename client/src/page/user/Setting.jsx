@@ -242,12 +242,11 @@ const Setting = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     for (const key in profileData) {
       if (key === "address" || key === "socialMedia") {
-        for (const subKey in profileData[key]) {
-          formData.append(`${key}.${subKey}`, profileData[key][subKey]);
-        }
+        formData.append(key, JSON.stringify(profileData[key]));
       } else if (key === "skills" || key === "education") {
         formData.append(key, JSON.stringify(profileData[key]));
       } else {
@@ -267,7 +266,11 @@ const Setting = () => {
       );
       alert("Profile Updated");
     } catch (error) {
-      alert("Error creating profile");
+      console.error(error);
+      alert(
+        "Error creating profile: " + error.response?.data?.message ||
+          error.message
+      );
     }
   };
 

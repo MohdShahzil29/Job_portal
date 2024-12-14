@@ -14,6 +14,7 @@ import Details from "./page/recruter/Details";
 import UserRoutes from "./routes/user";
 import UserDashboard from "./page/user/Dashboard";
 import Setting from "./page/user/Setting";
+import Profile from "./page/user/Profile";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/user" element={<UserRoutes />}>
         <Route path="" element={<UserDashboard />} />
         <Route path="/user/settings" element={<Setting />} />
+        <Route path="/user/profile" element={<Profile />} />
         </Route>
       </Routes>
       <Footer />
