@@ -8,7 +8,7 @@ import { authenticateUser } from "../middleware/auth.js";
 
 const app = express.Router();
 
-app.post("/apply/:id", authenticateUser, applyJob);
+app.post("/apply/:id", applyJob);
 app.get("/applied-job", authenticateUser, getAppliedJob);
 app.patch(
   "/update-status/:applicationId",

@@ -24,7 +24,6 @@ app.use(
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   })
 );
-// app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "50mb" }));

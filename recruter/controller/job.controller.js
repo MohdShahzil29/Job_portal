@@ -171,3 +171,21 @@ export const getAllJob = async (req, res) => {
     });
   }
 };
+
+export const getJobBySlug = async (req, res) => {
+  try {
+    const product = await Job.findOne({ slug: req.params.slug });
+    res.status(200).send({
+      success: true,
+      message: "Single Product Fetched",
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Eror while getitng single product",
+      error,
+    });
+  }
+};

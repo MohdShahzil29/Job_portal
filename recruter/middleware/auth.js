@@ -10,6 +10,9 @@ export const authenticateUser = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    console.log("Token Passing from postman :", token);
+
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await userModel.findById(decoded.id);

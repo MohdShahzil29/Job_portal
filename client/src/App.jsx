@@ -15,6 +15,7 @@ import UserRoutes from "./routes/user";
 import UserDashboard from "./page/user/Dashboard";
 import Setting from "./page/user/Setting";
 import Profile from "./page/user/Profile";
+import JobDetails from './page/JobDetails'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/job/:slug" element={<JobDetails />} />
 
         <Route path="/recruter" element={<RecruterRoutes />}>
           <Route path="" element={<DashBoard />} />

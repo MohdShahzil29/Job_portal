@@ -39,7 +39,7 @@ const Navbar = () => {
           </li>
         </ul>
         {/* Post a Job Button */}
-        {auth ? (
+        {auth?.user ? (
           <>
             <button
               onClick={handelRedirect}
