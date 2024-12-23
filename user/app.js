@@ -9,8 +9,10 @@ import fileUpload from "express-fileupload";
 import useRoutes from "./routes/user.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 
+// User
 dotenv.config();
 connectDB();
+
 
 const app = express();
 

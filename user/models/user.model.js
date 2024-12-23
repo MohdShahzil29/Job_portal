@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+// User Model
 
 const userSchema = new mongoose.Schema(
   {
     name: {
-        type: String,
-        required: [true, "Name is required"],
+      type: String,
+      required: [true, "Name is required"],
     },
     email: {
       type: String,
@@ -14,6 +15,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    phone: { type: String, required: false },
+    position: { type: String, required: false },
+    company: { type: String, required: false },
   },
   {
     timestamps: true,

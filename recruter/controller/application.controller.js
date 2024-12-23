@@ -1,25 +1,30 @@
 import Application from "../model/application.model.js";
 import Job from "../model/job.model.js";
+import { getUserFromKafka } from "../services/kafka.service.js";
 
 export const applyJob = async (req, res) => {
   try {
     const jobId = req.params.id;
-    // const userId = req.user?._id;
+    const userId = await getUserFromKafka(req);
 
-    // console.log("User Id: ", userId);
+    console.log("User Id: ", userId);
+    if (!userId) {
+      return res.status(400).json({ message: "User not found in Kafka cache" });
+    }
+
     console.log("Job Id: ", jobId);
-
     const job = await Job.findById(jobId);
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
+
     if (job.status === "Closed") {
       return res.status(400).json({ message: "This job posting is closed" });
     }
-    // Create new application
+
     const application = new Application({
       job: jobId,
-      // applicant: userId,
+      applicant: userId,
     });
 
     await application.save();
@@ -30,14 +35,14 @@ export const applyJob = async (req, res) => {
       application,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in applyJob:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 export const getAppliedJob = async (req, res) => {
   try {
-    const userId = req.user?._id;
+    const userId = await getUserFromKafka(req); // Fetch user from Kafka
     const applications = await Application.find({ applicant: userId })
       .sort({ createdAt: -1 })
       .populate({

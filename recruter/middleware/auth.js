@@ -62,3 +62,4 @@ export const isRecruter = async (req, res, next) => {
     });
   }
 };
+

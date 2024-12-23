@@ -87,3 +87,7 @@ export const getUserPorfile = async (req, res) => {
     });
   }
 };
+
+export const getUserData = async() => {
+
+}

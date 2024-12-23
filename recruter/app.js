@@ -9,9 +9,13 @@ import jobRoutes from "./routes/job.routes.js";
 import fileUpload from "express-fileupload";
 import bodyParser from "body-parser";
 import applicationRoutes from "./routes/application.routes.js";
+import { consumeMessages } from './services/kafka.service.js';
 
+
+// Recruter
 dotenv.config();
 connectDB();
+consumeMessages();
 
 const app = express();
 
@@ -21,7 +25,7 @@ app.use(cors());
 app.use(
   fileUpload({
     useTempFiles: true,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+    limits: { fileSize: 50 * 1024 * 1024 }, 
   })
 );
 app.use(cookieParser());

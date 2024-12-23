@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+// Recruter models
+
 const userSchema = new mongoose.Schema(
   {
     name: {

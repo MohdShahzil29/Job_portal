@@ -1,8 +1,10 @@
 import JWT from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
+import { sendMessage } from "../kafka/producer.js";
 
 export const userRegister = async (req, res) => {
+  // User login
   try {
     const { name, email, password } = req.body;
 
@@ -87,7 +89,17 @@ export const userLogin = async (req, res) => {
     });
 
     res.cookie("token", token);
-    
+    // Send complete user data to Kafka
+    await sendMessage("user-topic", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      phone: user.phone || "000-000-0000",
+      position: user.position || "Unknown",
+      company: user.company || "Unknown",
+    });
+
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -101,6 +113,31 @@ export const userLogin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error in login",
+      error: error.message,
+    });
+  }
+};
+
+export const userDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    res.status(200).send({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user details",
       error: error.message,
     });
   }
