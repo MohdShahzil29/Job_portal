@@ -1,0 +1,33 @@
+:root {
+  --bg-color-light: #ffffff;
+  --text-color-light: #000000;
+
+  --bg-color-dark: #121212;
+  --text-color-dark: #ffffff;
+
+  --bg-color-eyeComfort: #fdf6e3;
+  --text-color-eyeComfort: #586e75;
+}
+
+.app.light {
+  background-color: var(--bg-color-light);
+  color: var(--text-color-light);
+}
+
+.app.dark {
+  background-color: var(--bg-color-dark);
+  color: var(--text-color-dark);
+}
+
+.app.eyeComfort {
+  background-color: var(--bg-color-eyeComfort);
+  color: var(--text-color-eyeComfort);
+}
+
+button.toggle-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+}

@@ -21,6 +21,17 @@ export const applyJob = async (req, res) => {
     if (job.status === "Closed") {
       return res.status(400).json({ message: "This job posting is closed" });
     }
+    const existingApplication = await Application.findOne({
+      job: jobId,
+      applicant: userId,
+    });
+
+    if (existingApplication) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already applied for this job",
+      });
+    }
 
     const application = new Application({
       job: jobId,
@@ -42,7 +53,7 @@ export const applyJob = async (req, res) => {
 
 export const getAppliedJob = async (req, res) => {
   try {
-    const userId = await getUserFromKafka(req); // Fetch user from Kafka
+    const userId = await getUserFromKafka(req); 
     const applications = await Application.find({ applicant: userId })
       .sort({ createdAt: -1 })
       .populate({

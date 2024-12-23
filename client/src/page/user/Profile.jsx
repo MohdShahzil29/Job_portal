@@ -9,6 +9,7 @@ import {
   FaTwitter,
   FaEdit,
 } from "react-icons/fa";
+import Spinner from "../../components/Spinner";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -33,7 +34,11 @@ const Profile = () => {
   }, []);
 
   if (!profile) {
-    return <div>Loading...</div>; // Show loading state if profile is not yet fetched
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
   }
 
   return (

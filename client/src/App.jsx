@@ -18,6 +18,13 @@ import Profile from "./page/user/Profile";
 import JobDetails from './page/JobDetails'
 
 function App() {
+  const [theme, setTheme] = useState("light");
+
+  const toggleTheme = () => {
+    setTheme((prev) =>
+      prev === "light" ? "dark" : prev === "dark" ? "eyeComfort" : "light"
+    );
+  };
   return (
     <>
       <Navbar />

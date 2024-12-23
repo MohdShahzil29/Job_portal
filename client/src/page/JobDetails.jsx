@@ -14,8 +14,9 @@ const JobDetails = () => {
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [hasApplied, setHasApplied] = useState(false);
   const [auth] = useAuth();
+  // console.log("Auth Email:", auth?.user.email)
   const { slug } = useParams();
-  const [apply, setApply] = useApply(); // Getting apply context
+  const [apply, setApply] = useApply(); 
 
   // Fetch job details
   const fetchJobDetails = async () => {
@@ -71,7 +72,7 @@ const JobDetails = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${auth.token}`,
+            'user-email': `${auth?.user.email}`,
           },
         }
       );
@@ -89,10 +90,10 @@ const JobDetails = () => {
         },
       ]);
 
-      setHasApplied(true); // Update the state to show "Already Applied"
+      setHasApplied(true);
     } catch (error) {
       console.log("Error applying for job:", error);
-      toast.error("An error occurred while applying for the job.");
+      toast.error("Maybe you have aleredy applied for this job?");
     }
   };
 
