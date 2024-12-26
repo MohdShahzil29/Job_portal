@@ -15,16 +15,10 @@ import UserRoutes from "./routes/user";
 import UserDashboard from "./page/user/Dashboard";
 import Setting from "./page/user/Setting";
 import Profile from "./page/user/Profile";
-import JobDetails from './page/JobDetails'
+import JobDetails from "./page/JobDetails";
+import UserDetails from "./page/user/UserDetails";
 
 function App() {
-  const [theme, setTheme] = useState("light");
-
-  const toggleTheme = () => {
-    setTheme((prev) =>
-      prev === "light" ? "dark" : prev === "dark" ? "eyeComfort" : "light"
-    );
-  };
   return (
     <>
       <Navbar />
@@ -42,9 +36,10 @@ function App() {
         </Route>
 
         <Route path="/user" element={<UserRoutes />}>
-        <Route path="" element={<UserDashboard />} />
-        <Route path="/user/settings" element={<Setting />} />
-        <Route path="/user/profile" element={<Profile />} />
+          <Route path="" element={<UserDashboard />} />
+          <Route path="/user/settings" element={<Setting />} />
+          <Route path="/user/profile" element={<Profile />} />
+          <Route path="/user/dashboard" element={<UserDetails />} />
         </Route>
       </Routes>
       <Footer />

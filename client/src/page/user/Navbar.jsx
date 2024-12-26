@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AiOutlineDashboard,
@@ -8,12 +8,26 @@ import {
   AiOutlineSetting,
   AiOutlinePoweroff,
 } from "react-icons/ai";
+import { useAuth } from "../../context/user";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [auth, setAuth] = useAuth();
 
   const handleRedirect = (path) => {
     navigate(path);
+  };
+
+  const handelLogout = () => {
+    setAuth({
+      ...auth,
+      token: null,
+      user: null,
+    });
+    localStorage.removeItem("auth");
+    toast.success("Logout Successfully");
+    navigate("/");
   };
 
   return (
@@ -72,7 +86,7 @@ const Navbar = () => {
           </div>
           <div
             role="button"
-            onClick={() => handleRedirect("/logout")}
+            onClick={handelLogout}
             className="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
           >
             <div className="grid mr-4 place-items-center">

@@ -21,17 +21,6 @@ export const applyJob = async (req, res) => {
     if (job.status === "Closed") {
       return res.status(400).json({ message: "This job posting is closed" });
     }
-    const existingApplication = await Application.findOne({
-      job: jobId,
-      applicant: userId,
-    });
-
-    if (existingApplication) {
-      return res.status(400).json({
-        success: false,
-        message: "You have already applied for this job",
-      });
-    }
 
     const application = new Application({
       job: jobId,
@@ -53,7 +42,7 @@ export const applyJob = async (req, res) => {
 
 export const getAppliedJob = async (req, res) => {
   try {
-    const userId = await getUserFromKafka(req); 
+    const userId = await getUserFromKafka(req); // Fetch user from Kafka
     const applications = await Application.find({ applicant: userId })
       .sort({ createdAt: -1 })
       .populate({
@@ -122,5 +111,59 @@ export const updateApplicationStatus = async (req, res) => {
     res.status(500).json({
       message: "An error occurred while updating the application status.",
     });
+  }
+};
+
+export const getUserAppliedJob = async (req, res) => {
+  try {
+    const userId = await getUserFromKafka(req);
+
+    if (!userId) {
+      return res.status(400).json({ error: "User not found in Kafka cache" });
+    }
+    const appliedJobs = await Application.find({ applicant: userId })
+      .populate({
+        path: "job",
+        populate: { path: "company" },
+      })
+      .sort({ createdAt: -1 });
+
+    if (!appliedJobs.length) {
+      return res.status(200).json({
+        success: true,
+        message: "No applied jobs found for this user",
+        jobs: [],
+      });
+    }
+
+    res.status(200).json({ success: true, jobs: appliedJobs });
+  } catch (error) {
+    console.error("Error fetching applied jobs:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const getRecruiterJobsController = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const job = await Job.findById(jobId).populate({
+      path: "Application",
+      options: { sort: { createdAt: -1 } },
+      populate: {
+        path: "applicant",
+      },
+    });
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found.",
+        success: false,
+      });
+    }
+    return res.status(200).json({
+      job,
+      succees: true,
+    });
+  } catch (error) {
+    console.log(error);
   }
 };

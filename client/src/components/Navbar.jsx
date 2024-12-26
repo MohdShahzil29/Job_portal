@@ -10,12 +10,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState({ avatar: null });
   const [menuOpen, setMenuOpen] = useState(false);
-
   const id = auth.user?.id;
 
   // Fetch the profile data from the API
   const handelApi = async () => {
-    if (!id) return; 
+    if (!id) return;
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/user/get-user-profile/${id}`
@@ -26,7 +25,7 @@ const Navbar = () => {
     }
   };
 
-  console.log("Avatar", profile.avatar);
+  // console.log("Avatar", profile.avatar);
 
   useEffect(() => {
     if (id) handelApi();
@@ -162,6 +161,7 @@ const Navbar = () => {
               />
             )}
           </div>
+          <div>{/* <FaToggleOff size={34} /> */}</div>
         </div>
       </div>
     </nav>

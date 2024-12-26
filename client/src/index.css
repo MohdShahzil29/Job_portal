@@ -24,3 +24,26 @@
     font-weight: 400;
   }
 }
+
+.app.light {
+  background-color: var(--bg-color-light);
+  color: var(--text-color-light);
+}
+
+.app.dark {
+  background-color: var(--bg-color-dark);
+  color: var(--text-color-dark);
+}
+
+.app.eyeComfort {
+  background-color: var(--bg-color-eyeComfort);
+  color: var(--text-color-eyeComfort);
+}
+
+button.toggle-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
