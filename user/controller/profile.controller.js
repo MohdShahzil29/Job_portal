@@ -1,5 +1,6 @@
 import Profile from "../models/profile.model.js";
 import cloudinary from "../config/cloudinary.js";
+import redisClient from "../config/redis.js";
 
 export const userProfile = async (req, res) => {
   try {
@@ -45,6 +46,11 @@ export const userProfile = async (req, res) => {
       education: parsedEducation,
     });
 
+    // Cache the new profile in Redis
+    await redisClient.set(`profile:${req.user._id}`, JSON.stringify(profile), {
+      EX: 3600, // Cache for 1 hour
+    });
+
     res.status(201).json({
       success: true,
       profile,
@@ -62,6 +68,15 @@ export const getUserPorfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Check Redis cache
+    const cachedProfile = await redisClient.get(`profile:${userId}`);
+    if (cachedProfile) {
+      return res.status(200).json({
+        success: true,
+        profile: JSON.parse(cachedProfile),
+      });
+    }
+
     // Find profile by userId
     const profile = await Profile.findOne({ user: userId }).populate(
       "user",
@@ -75,6 +90,11 @@ export const getUserPorfile = async (req, res) => {
       });
     }
 
+    // Cache the profile for future requests
+    await redisClient.set(`profile:${userId}`, JSON.stringify(profile), {
+      EX: 3600, // Cache for 1 hour
+    });
+
     res.status(200).json({
       success: true,
       profile,
@@ -87,7 +107,3 @@ export const getUserPorfile = async (req, res) => {
     });
   }
 };
-
-export const getUserData = async() => {
-
-}

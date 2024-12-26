@@ -8,11 +8,11 @@ import fileUpload from "express-fileupload";
 
 import useRoutes from "./routes/user.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
+import redisClient from "./config/redis.js";
 
 // User
 dotenv.config();
 connectDB();
-
 
 const app = express();
 

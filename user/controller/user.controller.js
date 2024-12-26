@@ -2,6 +2,7 @@ import JWT from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import { sendMessage } from "../kafka/producer.js";
+import redisClient from "../config/redis.js";
 
 export const userRegister = async (req, res) => {
   // User login
@@ -88,6 +89,11 @@ export const userLogin = async (req, res) => {
       expiresIn: "1d",
     });
 
+    // Store session in Redis
+    await redisClient.set(`session:${user._id}`, token, {
+      EX: 86400, // Set expiration to match token expiry (1 day)
+    });
+
     res.cookie("token", token);
     // Send complete user data to Kafka
     await sendMessage("user-topic", {
@@ -120,13 +126,38 @@ export const userLogin = async (req, res) => {
 
 export const userDetails = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const userId = req.params.id;
+    
+    const cachedUser = await redisClient.get(`user:${userId}`);
+    if (cachedUser) {
+      return res.status(200).json({
+        success: true,
+        message: "User details fetched from cache",
+        user: JSON.parse(cachedUser),
+      });
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
+
+    // Cache the result in Redis
+    await redisClient.set(
+      `user:${userId}`,
+      JSON.stringify({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      }),
+      {
+        EX: 3600, // Set cache expiration time in seconds (e.g., 1 hour)
+      }
+    );
+
     res.status(200).send({
       user: {
         id: user._id,

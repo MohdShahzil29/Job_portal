@@ -1,12 +1,14 @@
 import bcrypt from "bcrypt";
 import User from "../model/user.model.js";
 import JWT from "jsonwebtoken";
+import redisClient from "../config/redis.js";
 
+// Register User
 export const register = async (req, res) => {
   try {
     const { name, email, password, company, position, phone } = req.body;
 
-    // validation
+    // Validation
     if (!name || !email || !password || !company || !position || !phone) {
       return res.status(400).json({
         success: false,
@@ -31,7 +33,7 @@ export const register = async (req, res) => {
       });
     }
 
-    // Validate phone number (basic validation)
+    // Validate phone number
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phone)) {
       return res.status(400).json({
@@ -40,9 +42,19 @@ export const register = async (req, res) => {
       });
     }
 
-    // Check if user already exists
+    // Check Redis cache for existing user
+    const cachedUser = await redisClient.get(email);
+    if (cachedUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists with this email",
+      });
+    }
+
+    // Check database for existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      await redisClient.set(email, JSON.stringify(existingUser), "EX", 3600); // Cache user for 1 hour
       return res.status(400).json({
         success: false,
         message: "User already exists with this email",
@@ -61,6 +73,9 @@ export const register = async (req, res) => {
       position,
       phone,
     });
+
+    // Cache new user
+    await redisClient.set(email, JSON.stringify(user), "EX", 3600); // Cache user for 1 hour
 
     res.status(201).json({
       success: true,
@@ -83,12 +98,23 @@ export const register = async (req, res) => {
   }
 };
 
+// Login User
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check Redis cache for user
+    let user = await redisClient.get(email);
+    if (user) {
+      user = JSON.parse(user);
+    } else {
+      // If not in cache, fetch from database
+      user = await User.findOne({ email });
+      if (user) {
+        await redisClient.set(email, JSON.stringify(user), "EX", 3600); // Cache user for 1 hour
+      }
+    }
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -105,9 +131,12 @@ export const login = async (req, res) => {
       });
     }
 
+    // Generate token and store in Redis
     const token = JWT.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
+
+    await redisClient.set(`token:${user._id}`, token, "EX", 86400); // Cache token for 1 day
 
     // Set cookie
     res.cookie("token", token);
@@ -135,8 +164,17 @@ export const login = async (req, res) => {
   }
 };
 
+// Logout User
 export const logout = async (req, res) => {
   try {
+    const token = req.cookies.token;
+
+    // Invalidate token in Redis
+    if (token) {
+      const decoded = JWT.verify(token, process.env.JWT_SECRET);
+      await redisClient.del(`token:${decoded.id}`);
+    }
+
     res.clearCookie("token");
 
     res.status(200).json({

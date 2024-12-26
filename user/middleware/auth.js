@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
+import redisClient from '../config/redis.js'
 
 // User middelwares
 export const authenticateUser = async (req, res, next) => {
@@ -16,6 +17,14 @@ export const authenticateUser = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Check if token is valid in Redis
+    const cachedToken = await redisClient.get(`session:${decoded.id}`);
+    if (!cachedToken || cachedToken !== token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid session" });
     }
 
     req.user = user;
